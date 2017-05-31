@@ -1,0 +1,28 @@
+{
+  "name": "@emmetio/stylesheet-analyzer",
+  "version": "0.0.1",
+  "description": "Implementation of LESS and SCSS preprocessors, used for in-editor code analysis",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emmetio/stylesheet-analyzer.git"
+  },
+  "keywords": [],
+  "author": "Sergey Chikuyonok <serge.che@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/emmetio/stylesheet-analyzer/issues"
+  },
+  "homepage": "https://github.com/emmetio/stylesheet-analyzer#readme",
+  "dependencies": {
+    "@emmetio/css-parser": "^0.3.0"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
+    "babel-register": "^6.24.1",
+    "mocha": "^3.4.2"
+  }
+}
