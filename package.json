@@ -18,11 +18,15 @@
   },
   "homepage": "https://github.com/emmetio/stylesheet-analyzer#readme",
   "dependencies": {
-    "@emmetio/css-parser": "^0.3.0"
+    "@emmetio/css-parser": "^0.3.0",
+    "@emmetio/stream-reader-utils": "^0.1.0",
+    "livestyle-css-expression": "^1.0.1"
   },
   "devDependencies": {
     "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
     "babel-register": "^6.24.1",
-    "mocha": "^3.4.2"
+    "mocha": "^3.4.2",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-node-resolve": "^3.0.0"
   }
 }
