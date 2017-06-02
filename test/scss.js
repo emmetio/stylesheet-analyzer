@@ -3,6 +3,7 @@
 const assert = require('assert');
 require('babel-register');
 const SCSS = require('../lib/scss').default;
+const { interpolate, evaluate } = require('../lib/scss/expression');
 
 describe('SCSS Stylesheet', () => {
 	it('should extract SCSS dependencies', () => {
@@ -28,5 +29,21 @@ describe('SCSS Stylesheet', () => {
 
 		style = new SCSS('@import "http://foo.com/bar";');
 		assert.deepEqual(style.dependencies, []);
+	});
+
+	it('should interpolate expressions', () => {
+		assert.equal(interpolate('foo #{$foo + 2} bar', { $foo: 10 }), 'foo 12 bar');
+		assert.equal(interpolate('foo "#{$bar}"', { $bar: 'bar' }), 'foo "bar"');
+		assert.equal(interpolate('foo "#{$bar}"', { $bar: '"bar"' }), 'foo "bar"', 'Unquote string inside quotes');
+	});
+
+	it('should evaluate expression', () => {
+		assert.equal(evaluate('1 + 2'), 3);
+		assert.equal(evaluate('$foo * $bar', { $foo: 10, $bar: 20 }), 200);
+	});
+
+	it('should resolve basic stylesheet', () => {
+		const style = new SCSS('foo { bar { padding: 2 * 10px; } }');
+		assert.equal(style.transform().toCSS(true), 'foo bar {\n\tpadding: 20px;\n}\n');
 	});
 });

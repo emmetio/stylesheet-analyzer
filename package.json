@@ -19,6 +19,7 @@
   "homepage": "https://github.com/emmetio/stylesheet-analyzer#readme",
   "dependencies": {
     "@emmetio/css-parser": "^0.3.0",
+    "@emmetio/stream-reader": "^2.2.0",
     "@emmetio/stream-reader-utils": "^0.1.0",
     "livestyle-css-expression": "^1.0.1"
   },
