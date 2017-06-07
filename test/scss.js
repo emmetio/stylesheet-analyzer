@@ -51,4 +51,16 @@ describe('SCSS Stylesheet', () => {
 		const style = new SCSS('$a: 10px; $b: $a * 2; foo { padding: $a + $b; }');
 		assert.equal(style.transform().toCSS(true), 'foo {\n\tpadding: 30px;\n}\n');
 	});
+
+	it('should resolve @each rule', () => {
+		const style = new SCSS(`@each $animal in puma, sea-slug, egret, salamander {
+		  .#{$animal}-icon {
+		    background-image: url('/images/#{$animal}.png');
+		  }
+		}`);
+
+		console.log('result', style.transform().toCSS());
+
+		// assert.equal(style.transform().toCSS(true), 'foo {\n\tpadding: 30px;\n}\n');
+	});
 });
