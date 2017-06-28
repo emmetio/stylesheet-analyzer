@@ -1,7 +1,9 @@
 'use strict';
 const assert = require('assert');
+const parseList = require('@emmetio/css-parser').parseList;
 require('babel-register');
-const { list, map } = require('../lib/scss/collection');
+const collection = require('../lib/scss/collection2').default;
+
 
 describe('SCSS Collections', () => {
 	function json(item) {
@@ -19,30 +21,25 @@ describe('SCSS Collections', () => {
 		return item != null ? item.valueOf() : item;
 	}
 
-	it('should parse list', () => {
-		const parse = expr => json(list(expr));
+	function parse(expr) {
+		const parsed = parseList(expr).map(token => json(collection(token)));
+		return parsed.length === 1 ? parsed[0] : parsed;
+	};
 
+	it('should parse collections', () => {
+		// Lists
 		assert.deepEqual(parse('1 2 3'), ['1', '2', '3']);
 		assert.deepEqual(parse('1, 2, 3'), ['1', '2', '3']);
 		assert.deepEqual(parse('1 2, 3 4'), [['1', '2'], ['3', '4']]);
 		assert.deepEqual(parse('1, 2 3, 4'), ['1', ['2', '3'], '4']);
 		assert.deepEqual(parse('(1 2) (3 4)'), [['1', '2'], ['3', '4']]);
-	});
+		assert.deepEqual(parse('(foo, bar)'), ['foo', 'bar']);
 
-	it('should parse map', () => {
-		const parse = expr => json(map(expr));
-
+		// Maps
 		assert.deepEqual(parse('(foo: bar)'), {foo: 'bar'});
 		assert.deepEqual(parse('(foo: bar, baz: 2)'), {foo: 'bar', baz: '2'});
 
-		// Not a map
-		assert.equal(parse('(foo, bar)'), null);
-		assert.equal(parse('(foo: bar, baz)'), null);
-		assert.equal(parse('(foo, baz: bar)'), null);
-	});
-
-	it('should parse combined collections', () => {
-		const parse = expr => json(map(expr) || list(expr));
+		// Combined
 		assert.deepEqual(parse('foo, (bar: 1)'), ['foo', { bar: '1' }]);
 		assert.deepEqual(parse('foo, (bar: (1 2))'), ['foo', { bar: ['1', '2'] }]);
 	});
