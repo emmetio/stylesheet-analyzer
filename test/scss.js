@@ -53,14 +53,71 @@ describe('SCSS Stylesheet', () => {
 	});
 
 	it('should resolve @each rule', () => {
-		const style = new SCSS(`@each $animal in puma, sea-slug, egret, salamander {
+		let style;
+
+		style = new SCSS(`@each $animal in puma, sea-slug, egret, salamander {
 		  .#{$animal}-icon {
 		    background-image: url('/images/#{$animal}.png');
 		  }
 		}`);
 
-		console.log('result', style.transform().toCSS());
+		assert.equal(style.transform().toCSS().trim(),
+`.puma-icon {
+	background-image: url('/images/puma.png');
+}
+.sea-slug-icon {
+	background-image: url('/images/sea-slug.png');
+}
+.egret-icon {
+	background-image: url('/images/egret.png');
+}
+.salamander-icon {
+	background-image: url('/images/salamander.png');
+}`);
 
-		// assert.equal(style.transform().toCSS(true), 'foo {\n\tpadding: 30px;\n}\n');
+		style = new SCSS(`@each $animal, $color, $cursor in (puma, black, default),
+                                  (sea-slug, blue, pointer),
+                                  (egret, white, move) {
+		  .#{$animal}-icon {
+		    background-image: url('/images/#{$animal}.png');
+		    border: 2px solid $color;
+		    cursor: $cursor;
+		  }
+		}`);
+
+		assert.equal(style.transform().toCSS().trim(),
+`.puma-icon {
+	background-image: url('/images/puma.png');
+	border: 2px solid black;
+	cursor: default;
+}
+.sea-slug-icon {
+	background-image: url('/images/sea-slug.png');
+	border: 2px solid blue;
+	cursor: pointer;
+}
+.egret-icon {
+	background-image: url('/images/egret.png');
+	border: 2px solid white;
+	cursor: move;
+}`);
+
+		style = new SCSS(`@each $header, $size in (h1: 2em, h2: 1.5em, h3: 1.2em) {
+			#{$header} {
+				font-size: $size;
+			}
+		}`);
+
+		assert.equal(style.transform().toCSS().trim(),
+`h1 {
+	font-size: 2em;
+}
+h2 {
+	font-size: 1.5em;
+}
+h3 {
+	font-size: 1.2em;
+}`);
+
 	});
 });

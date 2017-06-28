@@ -2,7 +2,7 @@
 const assert = require('assert');
 const parseList = require('@emmetio/css-parser').parseList;
 require('babel-register');
-const collection = require('../lib/scss/collection2').default;
+const collection = require('../lib/scss/collection').default;
 
 
 describe('SCSS Collections', () => {
