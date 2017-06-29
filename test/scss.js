@@ -47,6 +47,11 @@ describe('SCSS Stylesheet', () => {
 		assert.equal(style.transform().toCSS(true), 'foo bar {\n\tpadding: 20px;\n}\n');
 	});
 
+	it('should interpolate rule', () => {
+		const style = new SCSS('$foo: bar; .test#{$foo} { padding: 0 }');
+		assert.equal(style.transform().toCSS(true), '.testbar {\n\tpadding: 0;\n}\n');
+	});
+
 	it('should resolve variables', () => {
 		const style = new SCSS('$a: 10px; $b: $a * 2; foo { padding: $a + $b; }');
 		assert.equal(style.transform().toCSS(true), 'foo {\n\tpadding: 30px;\n}\n');
