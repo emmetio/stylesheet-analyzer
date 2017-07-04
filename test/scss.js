@@ -126,13 +126,28 @@ h3 {
 
 	});
 
+	it('should resolve @media rule', () => {
+		let style;
+		style = new SCSS(`.sidebar { width: 300px; @media screen and (orientation: landscape) { width: 500px; } }`);
+		assert.equal(style.transform().toCSS(), `.sidebar {\n\twidth: 300px;\n}\n@media screen and (orientation: landscape) {\n\t.sidebar {\n\t\twidth: 500px;\n\t}\n}\n`);
+
+		style = new SCSS(`@media screen { .sidebar { @media (orientation: landscape) { width: 500px; } } }`);
+		assert.equal(style.transform().toCSS(true), `@media screen and (orientation: landscape) {\n\t.sidebar {\n\t\twidth: 500px;\n\t}\n}\n`);
+
+		style = new SCSS(`$m: screen; $f: min-device-pixel-ratio; $v: 1.5; @media #{$m} and ($f: $v) { .sidebar { width: 500px; } }`);
+		assert.equal(style.transform().toCSS(true), `@media screen and (min-device-pixel-ratio: 1.5) {\n\t.sidebar {\n\t\twidth: 500px;\n\t}\n}\n`);
+	});
+
 	it('should resolve @at-root rule', () => {
 		let style;
 
-		style = new SCSS(`.parent { @at-root .child { p: 1 } }`);
-		console.log(style.transform().toCSS());
+		style = new SCSS(`.parent { foo: 1; @at-root .child { bar: 2 } }`);
+		assert.equal(style.transform().toCSS(true), '.parent {\n\tfoo: 1;\n}\n.child {\n\tbar: 2;\n}\n');
 
-		style = new SCSS(`.parent { @at-root (without: rule) .child { p: 1 } }`);
-		console.log(style.transform().toCSS());
+		style = new SCSS(`.parent { foo: 1; @at-root { .child1 { bar: 2 } .child2 { bar: 3 } } }`);
+		assert.equal(style.transform().toCSS(true), '.parent {\n\tfoo: 1;\n}\n.child1 {\n\tbar: 2;\n}\n.child2 {\n\tbar: 3;\n}\n');
+
+		style = new SCSS(`@media print { .page { width: 8in; @at-root (without: media) { color: red; } } }`);
+		assert.equal(style.transform().toCSS(true), '@media print {\n\t.page {\n\t\twidth: 8in;\n\t}\n}\n.page {\n\tcolor: red;\n}\n');
 	});
 });
