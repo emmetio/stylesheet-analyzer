@@ -125,4 +125,14 @@ h3 {
 }`);
 
 	});
+
+	it('should resolve @at-root rule', () => {
+		let style;
+
+		style = new SCSS(`.parent { @at-root .child { p: 1 } }`);
+		console.log(style.transform().toCSS());
+
+		style = new SCSS(`.parent { @at-root (without: rule) .child { p: 1 } }`);
+		console.log(style.transform().toCSS());
+	});
 });
