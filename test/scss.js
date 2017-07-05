@@ -160,4 +160,17 @@ h3 {
 		style = new SCSS(`@for $i from 1 to 3 { .item-#{$i} { width: 2em * $i; } }`);
 		assert.equal(style.transform().toCSS(true), '.item-1 {\n\twidth: 2em;\n}\n.item-2 {\n\twidth: 4em;\n}\n');
 	});
+
+	it('should resolve @if rule', () => {
+		let style;
+
+		style = new SCSS(`$type: ocean; p { @if $type == ocean { color: blue; } @else if $type == monster { color: green; } @else { color: black; } }`);
+		assert.equal(style.transform().toCSS(), 'p {\n\tcolor: blue;\n}\n');
+
+		style = new SCSS(`$type: monster; p { @if $type == ocean { color: blue; } @else if $type == monster { color: green; } @else { color: black; } }`);
+		assert.equal(style.transform().toCSS(), 'p {\n\tcolor: green;\n}\n');
+
+		style = new SCSS(`p { @if $type == ocean { color: blue; } @else if $type == monster { color: green; } @else { color: black; } }`);
+		assert.equal(style.transform().toCSS(), 'p {\n\tcolor: black;\n}\n');
+	});
 });
