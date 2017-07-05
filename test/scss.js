@@ -150,4 +150,14 @@ h3 {
 		style = new SCSS(`@media print { .page { width: 8in; @at-root (without: media) { color: red; } } }`);
 		assert.equal(style.transform().toCSS(true), '@media print {\n\t.page {\n\t\twidth: 8in;\n\t}\n}\n.page {\n\tcolor: red;\n}\n');
 	});
+
+	it('should resolve @for rule', () => {
+		let style;
+
+		style = new SCSS(`@for $i from 1 through 3 { .item-#{$i} { width: 2em * $i; } }`);
+		assert.equal(style.transform().toCSS(true), '.item-1 {\n\twidth: 2em;\n}\n.item-2 {\n\twidth: 4em;\n}\n.item-3 {\n\twidth: 6em;\n}\n');
+
+		style = new SCSS(`@for $i from 1 to 3 { .item-#{$i} { width: 2em * $i; } }`);
+		assert.equal(style.transform().toCSS(true), '.item-1 {\n\twidth: 2em;\n}\n.item-2 {\n\twidth: 4em;\n}\n');
+	});
 });
