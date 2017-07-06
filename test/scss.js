@@ -180,4 +180,12 @@ h3 {
 		style = new SCSS(`$i: 6;  @while $i > 0 { .item-#{$i} { width: 2em * $i; } $i: $i - 2; }`);
 		assert.equal(style.transform().toCSS(), '.item-6 {\n\twidth: 12em;\n}\n.item-4 {\n\twidth: 8em;\n}\n.item-2 {\n\twidth: 4em;\n}\n');
 	});
+
+	it('should resolve @function rule', () => {
+		let style;
+
+		style = new SCSS(`$x1: 40px; $x2: 10px; @function test($n) { @return $n * $x1 + ($n - 1) * $x2; } #sidebar { width: test(5); }`);
+		console.log(style.transform().toCSS());
+		// assert.equal(style.transform().toCSS(), '.item-6 {\n\twidth: 12em;\n}\n.item-4 {\n\twidth: 8em;\n}\n.item-2 {\n\twidth: 4em;\n}\n');
+	});
 });
