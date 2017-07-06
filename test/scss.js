@@ -173,4 +173,11 @@ h3 {
 		style = new SCSS(`p { @if $type == ocean { color: blue; } @else if $type == monster { color: green; } @else { color: black; } }`);
 		assert.equal(style.transform().toCSS(), 'p {\n\tcolor: black;\n}\n');
 	});
+
+	it('should resolve @while rule', () => {
+		let style;
+
+		style = new SCSS(`$i: 6;  @while $i > 0 { .item-#{$i} { width: 2em * $i; } $i: $i - 2; }`);
+		assert.equal(style.transform().toCSS(), '.item-6 {\n\twidth: 12em;\n}\n.item-4 {\n\twidth: 8em;\n}\n.item-2 {\n\twidth: 4em;\n}\n');
+	});
 });
