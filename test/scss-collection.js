@@ -44,13 +44,52 @@ describe('SCSS Collections', () => {
 		assert.deepEqual(parse('foo, (bar: (1 2))'), ['foo', { bar: ['1', '2'] }]);
 	});
 
-	it('should parse arguments', () => {
-		const parse = expr => json(args(parseList(expr)[0]));
+	it('should keep expressions in collections', () => {
+		assert.deepEqual(parse('1 + 2 3'), ['1 + 2', '3']);
+		assert.deepEqual(parse('1 + 2 * 3'), '1 + 2 * 3');
+		assert.deepEqual(parse('(foo: $bar + 3, baz: 2)'), {foo: '$bar + 3', baz: '2'});
+	});
 
-		assert.deepEqual(parse('($a)'), {$a: null});
-		assert.deepEqual(parse('($a, $b)'), {$a: null, $b: null});
-		assert.deepEqual(parse('($a, $b: 5)'), {$a: null, $b: 5});
-		assert.deepEqual(parse('($a: 1, $b: 2)'), {$a: 1, $b: 2});
-		assert.deepEqual(parse('($a: 1)'), {$a: 1});
+	it('test parse', () => {
+		const parse = expr => args(parseList(expr)[0].item(0))
+			.reduce((out, arg) => {
+				out[arg.name] = arg.value != null ? arg.value.valueOf() : null;
+				return out;
+			}, {});
+		assert.deepEqual(parse('fn($a)'), {$a: null});
+	});
+
+	it('should parse arguments', () => {
+		const parse = expr => args(parseList(expr)[0].item(0))
+			.reduce((out, arg) => {
+				out[arg.name] = arg.value != null ? arg.value.valueOf() : null;
+				return out;
+			}, {});
+
+		assert.deepEqual(parse('fn($a)'), {$a: null});
+		assert.deepEqual(parse('fn($a, $b)'), {$a: null, $b: null});
+		assert.deepEqual(parse('fn($a, $b: 5)'), {$a: null, $b: '5'});
+		assert.deepEqual(parse('fn($a: 1, $b: 2)'), {$a: '1', $b: '2'});
+		assert.deepEqual(parse('fn($a: 1)'), {$a: '1'});
+		assert.deepEqual(parse('fn($a: $b + 2)'), {$a: '$b + 2'});
+	});
+
+	it('should parse rest arguments', () => {
+		const parse = expr => args(parseList(expr)[0].item(0));
+		let a = parse('fn($a...)');
+		assert.equal(a.length, 1);
+		assert.equal(a[0].name, '$a');
+		assert.equal(a[0].value, null);
+		assert.equal(a[0].rest, true);
+
+		a = parse('fn($a: 5, $b...)');
+		assert.equal(a.length, 2);
+		assert.equal(a[0].name, '$a');
+		assert.equal(a[0].value, '5');
+		assert.equal(a[0].rest, false);
+
+		assert.equal(a[1].name, '$b');
+		assert.equal(a[1].value, null);
+		assert.equal(a[1].rest, true);
 	});
 });
