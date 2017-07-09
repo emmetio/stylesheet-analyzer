@@ -185,7 +185,6 @@ h3 {
 		let style;
 
 		style = new SCSS(`$x1: 40px; $x2: 10px; @function test($n) { @return $n * $x1 + ($n - 1) * $x2; } #sidebar { width: test(5); }`);
-		console.log(style.transform().toCSS());
-		// assert.equal(style.transform().toCSS(), '.item-6 {\n\twidth: 12em;\n}\n.item-4 {\n\twidth: 8em;\n}\n.item-2 {\n\twidth: 4em;\n}\n');
+		assert.equal(style.transform().toCSS(), '#sidebar {\n\twidth: 240px;\n}\n');
 	});
 });
