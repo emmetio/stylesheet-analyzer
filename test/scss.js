@@ -198,4 +198,9 @@ h3 {
 		const style = new SCSS(`@import "dep1"; $a2: 5px; .foo { padding: $a1 + $a2; } .bar { @import "dep2"; padding: $a1 + $a2; }`);
 		assert.equal(style.transform({ dep1, dep2 }).toCSS(), '.foo {\n\tpadding: 15px;\n}\n.bar {\n\tpadding: 21px;\n}\n');
 	});
+
+	it('should resolve property set', () => {
+		const style = new SCSS(`.foo { font: { family: Arial; size: 10px; } }`);
+		assert.equal(style.transform().toCSS(), '.foo {\n\tfont-family: Arial;\n\tfont-size: 10px;\n}\n');
+	});
 });
