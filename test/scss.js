@@ -208,4 +208,11 @@ h3 {
 		const style = new SCSS(`@supports (display: table-cell) and (display: list-item) { .foo { padding: 10px; } }`);
 		assert.equal(style.transform().toCSS(), '@supports (display: table-cell) and (display: list-item) {\n\t.foo {\n\t\tpadding: 10px;\n\t}\n}\n');
 	});
+
+	it('should handle mixins', () => {
+		let style;
+
+		style = new SCSS(`@mixin m1 { font-size: 10px; } @mixin m2($foo, $bar: 1px) { padding: $foo + $bar; }`);
+		console.log(style.transform().toCSS());
+	});
 });
