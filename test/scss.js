@@ -187,4 +187,15 @@ h3 {
 		style = new SCSS(`$x1: 40px; $x2: 10px; @function test($n) { @return $n * $x1 + ($n - 1) * $x2; } #sidebar { width: test(5); }`);
 		assert.equal(style.transform().toCSS(), '#sidebar {\n\twidth: 240px;\n}\n');
 	});
+
+	it('should resolve @import rule', () => {
+		const dep1 = new SCSS('$a1: 10px;');
+		const dep2 = new SCSS('$a2: 11px;');
+
+		dep1.transform();
+		dep2.transform();
+
+		const style = new SCSS(`@import "dep1"; $a2: 5px; .foo { padding: $a1 + $a2; } .bar { @import "dep2"; padding: $a1 + $a2; }`);
+		assert.equal(style.transform({ dep1, dep2 }).toCSS(), '.foo {\n\tpadding: 15px;\n}\n.bar {\n\tpadding: 21px;\n}\n');
+	});
 });
