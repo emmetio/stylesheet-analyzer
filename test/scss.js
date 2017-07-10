@@ -203,4 +203,9 @@ h3 {
 		const style = new SCSS(`.foo { font: { family: Arial; size: 10px; } }`);
 		assert.equal(style.transform().toCSS(), '.foo {\n\tfont-family: Arial;\n\tfont-size: 10px;\n}\n');
 	});
+
+	it('should resolve generic at-rule', () => {
+		const style = new SCSS(`@supports (display: table-cell) and (display: list-item) { .foo { padding: 10px; } }`);
+		assert.equal(style.transform().toCSS(), '@supports (display: table-cell) and (display: list-item) {\n\t.foo {\n\t\tpadding: 10px;\n\t}\n}\n');
+	});
 });
