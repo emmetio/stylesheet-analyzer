@@ -92,4 +92,18 @@ describe('SCSS Collections', () => {
 		assert.equal(a[1].value, null);
 		assert.equal(a[1].rest, true);
 	});
+
+	it('should parse argument invocation', () => {
+		const parse = expr => args(parseList(expr)[0].item(0));
+		let a = parse('fn(foo, "bar", 10px)');
+		assert.equal(a.length, 3);
+		assert.equal(a[0].name, null);
+		assert.equal(a[0].value.valueOf(), 'foo');
+
+		assert.equal(a[1].name, null);
+		assert.equal(a[1].value.valueOf(), '"bar"');
+
+		assert.equal(a[2].name, null);
+		assert.equal(a[2].value.valueOf(), '10px');
+	});
 });

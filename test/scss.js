@@ -212,7 +212,7 @@ h3 {
 	it('should handle mixins', () => {
 		let style;
 
-		style = new SCSS(`@mixin m1 { font-size: 10px; } @mixin m2($foo, $bar: 1px) { padding: $foo + $bar; }`);
-		console.log(style.transform().toCSS());
+		style = new SCSS(`@mixin m1 { font-size: 10px; } @mixin m2($foo, $bar: 1px) { padding: $foo + $bar; } .foo { @include m1; @include m2(10px); }`);
+		assert.equal(style.transform().toCSS(), '.foo {\n\tfont-size: 10px;\n\tpadding: 11px;\n}\n');
 	});
 });
