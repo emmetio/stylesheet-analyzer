@@ -212,7 +212,16 @@ h3 {
 	it('should handle mixins', () => {
 		let style;
 
+		// Basic mixin invocation
 		style = new SCSS(`@mixin m1 { font-size: 10px; } @mixin m2($foo, $bar: 1px) { padding: $foo + $bar; } .foo { @include m1; @include m2(10px); }`);
 		assert.equal(style.transform().toCSS(), '.foo {\n\tfont-size: 10px;\n\tpadding: 11px;\n}\n');
+
+		// Argument spread
+		style = new SCSS(`@mixin box-shadow($shadows...) { box-shadow: $shadows; } .shadows { @include box-shadow(0px 4px 5px #666, 2px 6px 10px #999); }`);
+		assert.equal(style.transform().toCSS(), '.shadows {\n\tbox-shadow: 0px 4px 5px #666666, 2px 6px 10px #999999;\n}\n');
+
+		// Mixin content bypass
+		style = new SCSS(`@mixin mx { html { @content; } } @include mx { #logo { width: auto; } }`);
+		assert.equal(style.transform().toCSS(true), 'html #logo {\n\twidth: auto;\n}\n');
 	});
 });
