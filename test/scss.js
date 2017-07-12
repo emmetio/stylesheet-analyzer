@@ -232,9 +232,9 @@ h3 {
 		assert.equal(style.transform().toCSS(), '.error, .seriousError {\n\tcolor: #ff0000;\n}\n.seriousError {\n\tborder-width: 3px;\n}\n');
 
 		style = new SCSS(`.error { color: #f00; } .error.intrusion { padding: 10px; } .seriousError { @extend .error; border-width: 3px; }`);
-		assert.equal(style.transform().toCSS(), '.error, .seriousError {\n\tcolor: #ff0000;\n}\n.error.intrusion, .seriousError.intrusion {\n\tpadding: 10px;\n}\n.seriousError {\n\tborder-width: 3px;\n}\n');
+		assert.equal(style.transform().toCSS(), '.error, .seriousError {\n\tcolor: #ff0000;\n}\n.error.intrusion, .intrusion.seriousError {\n\tpadding: 10px;\n}\n.seriousError {\n\tborder-width: 3px;\n}\n');
 
 		style = new SCSS(`.hoverlink { @extend a:hover; } .comment a.user:hover { font-weight: bold; }`);
-		console.log(style.transform().toCSS(true));
+		assert.equal(style.transform().toCSS(true), '.comment a.user:hover, .comment .user.hoverlink {\n\tfont-weight: bold;\n}\n');
 	});
 });
