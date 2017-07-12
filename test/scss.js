@@ -224,4 +224,17 @@ h3 {
 		style = new SCSS(`@mixin mx { html { @content; } } @include mx { #logo { width: auto; } }`);
 		assert.equal(style.transform().toCSS(true), 'html #logo {\n\twidth: auto;\n}\n');
 	});
+
+	it('should handle @extend rule', () => {
+		let style;
+
+		style = new SCSS(`.error { color: #f00; } .seriousError { @extend .error; border-width: 3px; }`);
+		assert.equal(style.transform().toCSS(), '.error, .seriousError {\n\tcolor: #ff0000;\n}\n.seriousError {\n\tborder-width: 3px;\n}\n');
+
+		style = new SCSS(`.error { color: #f00; } .error.intrusion { padding: 10px; } .seriousError { @extend .error; border-width: 3px; }`);
+		assert.equal(style.transform().toCSS(), '.error, .seriousError {\n\tcolor: #ff0000;\n}\n.error.intrusion, .seriousError.intrusion {\n\tpadding: 10px;\n}\n.seriousError {\n\tborder-width: 3px;\n}\n');
+
+		style = new SCSS(`.hoverlink { @extend a:hover; } .comment a.user:hover { font-weight: bold; }`);
+		console.log(style.transform().toCSS(true));
+	});
 });
