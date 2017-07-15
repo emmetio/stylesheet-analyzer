@@ -1,0 +1,25 @@
+.child {
+	padding: 10px;
+}
+.child .child2 {
+	margin: 10px;
+}
+@media print {
+	.child {
+		padding: 10px;
+	}
+	.child .child2 {
+		margin: 10px;
+	}
+}
+.parent {
+	padding: 10px;
+}
+@media print {
+	.d {
+		padding: 10px;
+	}
+}
+.a .b .c {
+	padding: 10px;
+}

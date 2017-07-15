@@ -1,0 +1,19 @@
+$a: 28px;
+$b: 35px;
+$c: 28px/35px;
+
+body {
+  font: 28px/35px;
+  padding: 28px/35px;
+  margin: $c;
+}
+
+div {
+  font: $a/$b;
+  padding: $a/$b;
+}
+
+p {
+  font: $c;
+  padding: $c;
+}

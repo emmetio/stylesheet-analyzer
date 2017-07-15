@@ -1,0 +1,7 @@
+@for $i from 1 through 3 {
+  .item-#{$i} { width: 2em * $i; }
+}
+
+@for $j from 10 to 13 {
+  .item-#{$j} { width: 3em * $j; }
+}

@@ -1,6 +1,6 @@
 'use strict';
 const assert = require('assert');
-const parseList = require('@emmetio/css-parser').parseList;
+const parseExpression = require('@emmetio/css-parser').parseMediaExpression;
 require('babel-register');
 const collection = require('../lib/scss/collection').default;
 const args = require('../lib/scss/arguments').default;
@@ -15,16 +15,16 @@ describe('SCSS Collections', () => {
 			return Array.from(item.keys()).reduce((out, key) => {
 				out[key] = json(item.get(key));
 				return out;
-			}, {})
+			}, {});
 		}
 
 		return item != null ? item.valueOf() : item;
 	}
 
 	function parse(expr) {
-		const parsed = parseList(expr).map(token => json(collection(token)));
+		const parsed = parseExpression(expr).map(token => json(collection(token)));
 		return parsed.length === 1 ? parsed[0] : parsed;
-	};
+	}
 
 	it('should parse collections', () => {
 		// Lists
@@ -37,6 +37,7 @@ describe('SCSS Collections', () => {
 
 		// Maps
 		assert.deepEqual(parse('(foo: bar)'), {foo: 'bar'});
+		assert.deepEqual(parse('(foo:bar)'), {foo: 'bar'});
 		assert.deepEqual(parse('(foo: bar, baz: 2)'), {foo: 'bar', baz: '2'});
 
 		// Combined
@@ -51,7 +52,7 @@ describe('SCSS Collections', () => {
 	});
 
 	it('test parse', () => {
-		const parse = expr => args(parseList(expr)[0].item(0))
+		const parse = expr => args(parseExpression(expr)[0].item(0))
 			.reduce((out, arg) => {
 				out[arg.name] = arg.value != null ? arg.value.valueOf() : null;
 				return out;
@@ -60,7 +61,7 @@ describe('SCSS Collections', () => {
 	});
 
 	it('should parse arguments', () => {
-		const parse = expr => args(parseList(expr)[0].item(0))
+		const parse = expr => args(parseExpression(expr)[0].item(0))
 			.reduce((out, arg) => {
 				out[arg.name] = arg.value != null ? arg.value.valueOf() : null;
 				return out;
@@ -75,7 +76,7 @@ describe('SCSS Collections', () => {
 	});
 
 	it('should parse rest arguments', () => {
-		const parse = expr => args(parseList(expr)[0].item(0));
+		const parse = expr => args(parseExpression(expr)[0].item(0));
 		let a = parse('fn($a...)');
 		assert.equal(a.length, 1);
 		assert.equal(a[0].name, '$a');
@@ -94,7 +95,7 @@ describe('SCSS Collections', () => {
 	});
 
 	it('should parse argument invocation', () => {
-		const parse = expr => args(parseList(expr)[0].item(0));
+		const parse = expr => args(parseExpression(expr)[0].item(0));
 		let a = parse('fn(foo, "bar", 10px)');
 		assert.equal(a.length, 3);
 		assert.equal(a[0].name, null);

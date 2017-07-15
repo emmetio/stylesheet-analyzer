@@ -1,0 +1,41 @@
+.parent {
+	@at-root .child {
+		padding: 10px;
+		.child2 {
+			margin:10px;
+		}
+	}
+}
+
+@media print {
+	.parent {
+		@at-root .child {
+			padding: 10px;
+			.child2 {
+				margin:10px;
+			}
+		}
+
+		@at-root (without: media) {
+			padding: 10px;
+		}
+	}
+}
+
+@media print {
+	.a {
+	  .b {
+	    @at-root (with:rule) {
+	      .c {
+	        padding: 10px;
+	      }
+	    }
+	    
+	    @at-root {
+	      .d {
+	        padding: 10px;
+	      }
+	    }
+	  }
+	}
+}

@@ -1,5 +1,7 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const assert = require('assert');
 require('babel-register');
 const SCSS = require('../lib/scss').default;
@@ -43,8 +45,13 @@ describe('SCSS Stylesheet', () => {
 	});
 
 	it('should resolve basic stylesheet', () => {
-		const style = new SCSS('foo { bar { padding: 2 * 10px; } }');
+		let style;
+
+		style = new SCSS('foo { bar { padding: 2 * 10px; } }');
 		assert.equal(style.transform().toCSS(true), 'foo bar {\n\tpadding: 20px;\n}\n');
+
+		style = new SCSS('foo { bar & { padding: 2 * 10px; bg: url(/logo.gif); } }');
+		assert.equal(style.transform().toCSS(true), 'bar foo {\n\tpadding: 20px;\n\tbg: url(/logo.gif);\n}\n');
 	});
 
 	it('should interpolate rule', () => {
@@ -67,7 +74,7 @@ describe('SCSS Stylesheet', () => {
 		}`);
 
 		assert.equal(style.transform().toCSS().trim(),
-`.puma-icon {
+			`.puma-icon {
 	background-image: url('/images/puma.png');
 }
 .sea-slug-icon {
@@ -91,7 +98,7 @@ describe('SCSS Stylesheet', () => {
 		}`);
 
 		assert.equal(style.transform().toCSS().trim(),
-`.puma-icon {
+			`.puma-icon {
 	background-image: url('/images/puma.png');
 	border: 2px solid black;
 	cursor: default;
@@ -114,7 +121,7 @@ describe('SCSS Stylesheet', () => {
 		}`);
 
 		assert.equal(style.transform().toCSS().trim(),
-`h1 {
+			`h1 {
 	font-size: 2em;
 }
 h2 {
@@ -128,63 +135,66 @@ h3 {
 
 	it('should resolve @media rule', () => {
 		let style;
-		style = new SCSS(`.sidebar { width: 300px; @media screen and (orientation: landscape) { width: 500px; } }`);
-		assert.equal(style.transform().toCSS(), `.sidebar {\n\twidth: 300px;\n}\n@media screen and (orientation: landscape) {\n\t.sidebar {\n\t\twidth: 500px;\n\t}\n}\n`);
+		style = new SCSS('.sidebar { width: 300px; @media screen and (orientation: landscape) { width: 500px; } }');
+		assert.equal(style.transform().toCSS(), '.sidebar {\n\twidth: 300px;\n}\n@media screen and (orientation: landscape) {\n\t.sidebar {\n\t\twidth: 500px;\n\t}\n}\n');
 
-		style = new SCSS(`@media screen { .sidebar { @media (orientation: landscape) { width: 500px; } } }`);
-		assert.equal(style.transform().toCSS(true), `@media screen and (orientation: landscape) {\n\t.sidebar {\n\t\twidth: 500px;\n\t}\n}\n`);
+		style = new SCSS('@media screen { .sidebar { @media (orientation: landscape) { width: 500px; } } }');
+		assert.equal(style.transform().toCSS(true), '@media screen and (orientation: landscape) {\n\t.sidebar {\n\t\twidth: 500px;\n\t}\n}\n');
 
-		style = new SCSS(`$m: screen; $f: min-device-pixel-ratio; $v: 1.5; @media #{$m} and ($f: $v) { .sidebar { width: 500px; } }`);
-		assert.equal(style.transform().toCSS(true), `@media screen and (min-device-pixel-ratio: 1.5) {\n\t.sidebar {\n\t\twidth: 500px;\n\t}\n}\n`);
+		style = new SCSS('$m: screen; $f: min-device-pixel-ratio; $v: 1.5; @media #{$m} and ($f: $v) { .sidebar { width: 500px; } }');
+		assert.equal(style.transform().toCSS(true), '@media screen and (min-device-pixel-ratio: 1.5) {\n\t.sidebar {\n\t\twidth: 500px;\n\t}\n}\n');
 	});
 
 	it('should resolve @at-root rule', () => {
 		let style;
 
-		style = new SCSS(`.parent { foo: 1; @at-root .child { bar: 2 } }`);
+		style = new SCSS('.parent { foo: 1; @at-root .child { bar: 2 } }');
 		assert.equal(style.transform().toCSS(true), '.parent {\n\tfoo: 1;\n}\n.child {\n\tbar: 2;\n}\n');
 
-		style = new SCSS(`.parent { foo: 1; @at-root { .child1 { bar: 2 } .child2 { bar: 3 } } }`);
+		style = new SCSS('.parent { foo: 1; @at-root { .child1 { bar: 2 } .child2 { bar: 3 } } }');
 		assert.equal(style.transform().toCSS(true), '.parent {\n\tfoo: 1;\n}\n.child1 {\n\tbar: 2;\n}\n.child2 {\n\tbar: 3;\n}\n');
 
-		style = new SCSS(`@media print { .page { width: 8in; @at-root (without: media) { color: red; } } }`);
+		style = new SCSS('@media print { .page { width: 8in; @at-root (without: media) { color: red; } } }');
 		assert.equal(style.transform().toCSS(true), '@media print {\n\t.page {\n\t\twidth: 8in;\n\t}\n}\n.page {\n\tcolor: red;\n}\n');
+
+		style = new SCSS('@media print { .a { .b { @at-root (with:rule) { .c { padding: 10px; } } } } }');
+		assert.equal(style.transform().toCSS(true), '.a .b .c {\n\tpadding: 10px;\n}\n');
 	});
 
 	it('should resolve @for rule', () => {
 		let style;
 
-		style = new SCSS(`@for $i from 1 through 3 { .item-#{$i} { width: 2em * $i; } }`);
+		style = new SCSS('@for $i from 1 through 3 { .item-#{$i} { width: 2em * $i; } }');
 		assert.equal(style.transform().toCSS(true), '.item-1 {\n\twidth: 2em;\n}\n.item-2 {\n\twidth: 4em;\n}\n.item-3 {\n\twidth: 6em;\n}\n');
 
-		style = new SCSS(`@for $i from 1 to 3 { .item-#{$i} { width: 2em * $i; } }`);
+		style = new SCSS('@for $i from 1 to 3 { .item-#{$i} { width: 2em * $i; } }');
 		assert.equal(style.transform().toCSS(true), '.item-1 {\n\twidth: 2em;\n}\n.item-2 {\n\twidth: 4em;\n}\n');
 	});
 
 	it('should resolve @if rule', () => {
 		let style;
 
-		style = new SCSS(`$type: ocean; p { @if $type == ocean { color: blue; } @else if $type == monster { color: green; } @else { color: black; } }`);
+		style = new SCSS('$type: ocean; p { @if $type == ocean { color: blue; } @else if $type == monster { color: green; } @else { color: black; } }');
 		assert.equal(style.transform().toCSS(), 'p {\n\tcolor: blue;\n}\n');
 
-		style = new SCSS(`$type: monster; p { @if $type == ocean { color: blue; } @else if $type == monster { color: green; } @else { color: black; } }`);
+		style = new SCSS('$type: monster; p { @if $type == ocean { color: blue; } @else if $type == monster { color: green; } @else { color: black; } }');
 		assert.equal(style.transform().toCSS(), 'p {\n\tcolor: green;\n}\n');
 
-		style = new SCSS(`p { @if $type == ocean { color: blue; } @else if $type == monster { color: green; } @else { color: black; } }`);
+		style = new SCSS('p { @if $type == ocean { color: blue; } @else if $type == monster { color: green; } @else { color: black; } }');
 		assert.equal(style.transform().toCSS(), 'p {\n\tcolor: black;\n}\n');
 	});
 
 	it('should resolve @while rule', () => {
 		let style;
 
-		style = new SCSS(`$i: 6;  @while $i > 0 { .item-#{$i} { width: 2em * $i; } $i: $i - 2; }`);
+		style = new SCSS('$i: 6;  @while $i > 0 { .item-#{$i} { width: 2em * $i; } $i: $i - 2; }');
 		assert.equal(style.transform().toCSS(), '.item-6 {\n\twidth: 12em;\n}\n.item-4 {\n\twidth: 8em;\n}\n.item-2 {\n\twidth: 4em;\n}\n');
 	});
 
 	it('should resolve @function rule', () => {
 		let style;
 
-		style = new SCSS(`$x1: 40px; $x2: 10px; @function test($n) { @return $n * $x1 + ($n - 1) * $x2; } #sidebar { width: test(5); }`);
+		style = new SCSS('$x1: 40px; $x2: 10px; @function test($n) { @return $n * $x1 + ($n - 1) * $x2; } #sidebar { width: test(5); }');
 		assert.equal(style.transform().toCSS(), '#sidebar {\n\twidth: 240px;\n}\n');
 	});
 
@@ -195,17 +205,17 @@ h3 {
 		dep1.transform();
 		dep2.transform();
 
-		const style = new SCSS(`@import "dep1"; $a2: 5px; .foo { padding: $a1 + $a2; } .bar { @import "dep2"; padding: $a1 + $a2; }`);
+		const style = new SCSS('@import "dep1"; $a2: 5px; .foo { padding: $a1 + $a2; } .bar { @import "dep2"; padding: $a1 + $a2; }');
 		assert.equal(style.transform({ dep1, dep2 }).toCSS(), '.foo {\n\tpadding: 15px;\n}\n.bar {\n\tpadding: 21px;\n}\n');
 	});
 
 	it('should resolve property set', () => {
-		const style = new SCSS(`.foo { font: { family: Arial; size: 10px; } }`);
+		const style = new SCSS('.foo { font: { family: Arial; size: 10px; } }');
 		assert.equal(style.transform().toCSS(), '.foo {\n\tfont-family: Arial;\n\tfont-size: 10px;\n}\n');
 	});
 
 	it('should resolve generic at-rule', () => {
-		const style = new SCSS(`@supports (display: table-cell) and (display: list-item) { .foo { padding: 10px; } }`);
+		const style = new SCSS('@supports (display: table-cell) and (display: list-item) { .foo { padding: 10px; } }');
 		assert.equal(style.transform().toCSS(), '@supports (display: table-cell) and (display: list-item) {\n\t.foo {\n\t\tpadding: 10px;\n\t}\n}\n');
 	});
 
@@ -213,28 +223,45 @@ h3 {
 		let style;
 
 		// Basic mixin invocation
-		style = new SCSS(`@mixin m1 { font-size: 10px; } @mixin m2($foo, $bar: 1px) { padding: $foo + $bar; } .foo { @include m1; @include m2(10px); }`);
+		style = new SCSS('@mixin m1 { font-size: 10px; } @mixin m2($foo, $bar: 1px) { padding: $foo + $bar; } .foo { @include m1; @include m2(10px); }');
 		assert.equal(style.transform().toCSS(), '.foo {\n\tfont-size: 10px;\n\tpadding: 11px;\n}\n');
 
 		// Argument spread
-		style = new SCSS(`@mixin box-shadow($shadows...) { box-shadow: $shadows; } .shadows { @include box-shadow(0px 4px 5px #666, 2px 6px 10px #999); }`);
+		style = new SCSS('@mixin box-shadow($shadows...) { box-shadow: $shadows; } .shadows { @include box-shadow(0px 4px 5px #666, 2px 6px 10px #999); }');
 		assert.equal(style.transform().toCSS(), '.shadows {\n\tbox-shadow: 0px 4px 5px #666666, 2px 6px 10px #999999;\n}\n');
 
 		// Mixin content bypass
-		style = new SCSS(`@mixin mx { html { @content; } } @include mx { #logo { width: auto; } }`);
+		style = new SCSS('@mixin mx { html { @content; } } @include mx { #logo { width: auto; } }');
 		assert.equal(style.transform().toCSS(true), 'html #logo {\n\twidth: auto;\n}\n');
 	});
 
 	it('should handle @extend rule', () => {
 		let style;
 
-		style = new SCSS(`.error { color: #f00; } .seriousError { @extend .error; border-width: 3px; }`);
+		style = new SCSS('.error { color: #f00; } .seriousError { @extend .error; border-width: 3px; }');
 		assert.equal(style.transform().toCSS(), '.error, .seriousError {\n\tcolor: #ff0000;\n}\n.seriousError {\n\tborder-width: 3px;\n}\n');
 
-		style = new SCSS(`.error { color: #f00; } .error.intrusion { padding: 10px; } .seriousError { @extend .error; border-width: 3px; }`);
+		style = new SCSS('.error { color: #f00; } .error.intrusion { padding: 10px; } .seriousError { @extend .error; border-width: 3px; }');
 		assert.equal(style.transform().toCSS(), '.error, .seriousError {\n\tcolor: #ff0000;\n}\n.error.intrusion, .intrusion.seriousError {\n\tpadding: 10px;\n}\n.seriousError {\n\tborder-width: 3px;\n}\n');
 
-		style = new SCSS(`.hoverlink { @extend a:hover; } .comment a.user:hover { font-weight: bold; }`);
+		style = new SCSS('.hoverlink { @extend a:hover; } .comment a.user:hover { font-weight: bold; }');
 		assert.equal(style.transform().toCSS(true), '.comment a.user:hover, .comment .user.hoverlink {\n\tfont-weight: bold;\n}\n');
+	});
+
+	it('should pass official samples tests', () => {
+		const dir = path.resolve(__dirname, './scss');
+		const runTest = file => {
+			const source = fs.readFileSync(path.join(dir, file), 'utf8');
+			const expected = fs.readFileSync(path.join(dir, file.replace(/\.\w+$/, '.css')), 'utf8');
+
+			const style = new SCSS(source);
+			assert.equal(style.transform().toCSS(true), expected, file);
+		};
+
+		// runTest('function.scss');
+
+		fs.readdirSync(dir)
+			.filter(file => path.extname(file) === '.scss')
+			.forEach(runTest);
 	});
 });

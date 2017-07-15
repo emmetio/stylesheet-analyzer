@@ -1,0 +1,67 @@
+.page-title {
+	font-family: Arial;
+	font-size: 20px;
+	font-weight: bold;
+	color: #ff0000;
+	padding: 4px;
+	margin-top: 10px;
+}
+.block {
+	display: inline-block;
+}
+.block:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+* html .block {
+	height: 1px;
+}
+a {
+	color: blue;
+	background-color: red;
+}
+.compound {
+	background-color: #ffcc00;
+	font-size: 20px;
+}
+p {
+	border-color: blue;
+	border-width: 1in;
+	border-style: dashed;
+}
+p {
+	border-color: blue;
+	border-width: 1in;
+	border-style: dashed;
+}
+h1 {
+	border-color: blue;
+	border-width: 2in;
+	border-style: dashed;
+}
+p {
+	border-color: blue;
+	border-width: 1in;
+	border-style: dashed;
+}
+h1 {
+	border-color: blue;
+	border-width: 2in;
+	border-style: dashed;
+}
+.shadows {
+	-moz-box-shadow: 0px 4px 5px #666666, 2px 6px 10px #999999;
+	-webkit-box-shadow: 0px 4px 5px #666666, 2px 6px 10px #999999;
+	box-shadow: 0px 4px 5px #666666, 2px 6px 10px #999999;
+}
+* html #logo {
+	background-image: url(/logo.gif);
+}
+.colors {
+	background-color: blue;
+	color: white;
+	border-color: blue;
+}

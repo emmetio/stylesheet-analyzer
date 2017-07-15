@@ -1,0 +1,37 @@
+@function foo() {
+  @return 1 + 2;
+}
+
+bar1 {
+  a: foo();
+}
+
+@function plus($var1, $var2) {
+  @return $var1 + $var2;
+}
+
+bar2 {
+  a: plus(1, 2);
+}
+
+@function -my-expression() {@return c}
+
+.a {b: -my-expression()}
+
+@function foo2($a, $b...) {
+  @return "a: #{$a}, b: #{$b}";
+}
+
+.foo2 {val: foo2(1, 2, 3, 4)}
+
+@function foo3($a, $b...) {
+  @return "a: #{$a}, b: #{length($b)}";
+}
+
+.foo3 {val: foo3(1)}
+
+@function foo4($a, $b...) {
+  @return "a: #{length($b)}, b: #{nth($b, 2)}";
+}
+
+.foo4 {val: foo4(1, 2, 3, 4)}
