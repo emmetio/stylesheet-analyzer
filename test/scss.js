@@ -60,8 +60,14 @@ describe('SCSS Stylesheet', () => {
 	});
 
 	it('should resolve variables', () => {
-		const style = new SCSS('$a: 10px; $b: $a * 2; foo { padding: $a + $b; }');
+		let style;
+		
+		style = new SCSS('$a: 10px; $b: $a * 2; foo { padding: $a + $b; }');
 		assert.equal(style.transform().toCSS(true), 'foo {\n\tpadding: 30px;\n}\n');
+
+		// Test scope
+		style = new SCSS('$a: 10px; foo { $a: 20px; padding: $a; } bar { padding: $a; }');
+		assert.equal(style.transform().toCSS(true), 'foo {\n\tpadding: 20px;\n}\nbar {\n\tpadding: 10px;\n}\n');
 	});
 
 	it('should resolve @each rule', () => {
