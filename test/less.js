@@ -1,9 +1,11 @@
 'use strict';
 
 const assert = require('assert');
+const parser = require('@emmetio/css-parser').default;
 require('babel-register');
 const LESS = require('../lib/less').default;
 const { interpolate, evaluate } = require('../lib/less/expression');
+const { getExtend } = require('../lib/less/extend');
 
 describe('LESS Stylesheet', () => {
 	it('should interpolate expressions', () => {
@@ -41,5 +43,10 @@ describe('LESS Stylesheet', () => {
 		// Test scope
 		style = new LESS('@a: 10px; foo { @a: 20px; padding: @a; } bar { padding: @a; }');
 		assert.equal(style.transform().toCSS(true), 'foo {\n\tpadding: 20px;\n}\nbar {\n\tpadding: 10px;\n}\n');
+	});
+
+	it('should find extend', () => {
+		const css = parser('foo:extend(.bar) {  }');
+		console.log(getExtend(css.firstChild));
 	});
 });
