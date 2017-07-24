@@ -45,8 +45,15 @@ describe('LESS Stylesheet', () => {
 		assert.equal(style.transform().toCSS(true), 'foo {\n\tpadding: 20px;\n}\nbar {\n\tpadding: 10px;\n}\n');
 	});
 
-	it('should find extend', () => {
-		const css = parser('foo:extend(.bar) {  }');
-		console.log(getExtend(css.firstChild));
+	it('should apply extends', () => {
+		let style;
+		
+		style = new LESS('foo:extend(.bar) { margin: 5px; } .bar { padding: 10px } ');
+		assert.equal(style.transform().toCSS(true), 'foo {\n\tmargin: 5px;\n}\n.bar, foo {\n\tpadding: 10px;\n}\n');
 	});
+
+	// it('should find extend', () => {
+	// 	const css = parser('foo:extend(.bar) {  }');
+	// 	console.log(getExtend(css.firstChild));
+	// });
 });
