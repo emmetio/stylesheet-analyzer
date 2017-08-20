@@ -1,5 +1,7 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const assert = require('assert');
 const parser = require('@emmetio/css-parser').default;
 require('babel-register');
@@ -52,8 +54,39 @@ describe('LESS Stylesheet', () => {
 		assert.equal(style.transform().toCSS(true), 'foo {\n\tmargin: 5px;\n}\n.bar, foo {\n\tpadding: 10px;\n}\n');
 	});
 
-	// it('should find extend', () => {
-	// 	const css = parser('foo:extend(.bar) {  }');
-	// 	console.log(getExtend(css.firstChild));
-	// });
+	it('should find extend', () => {
+		let ext = getExtend(parser('foo:extend(.bar) {  }').firstChild);
+
+		assert(ext['.bar']);
+		assert.equal(ext['.bar'].length, 1);
+		assert.equal(ext['.bar'][0].extendWith, 'foo');
+		assert.equal(ext['.bar'][0].all, false);
+
+		ext = getExtend(parser('foo:extend(.bar .baz all) {  }').firstChild);
+		assert.equal(ext['.bar .baz'].length, 1);
+		assert.equal(ext['.bar .baz'][0].extendWith, 'foo');
+		assert.equal(ext['.bar .baz'][0].all, true);
+
+		ext = getExtend(parser('foo { &:extend(.bar); }').firstChild);
+		assert.equal(ext['.bar'].length, 1);
+		assert.equal(ext['.bar'][0].extendWith, 'foo');
+		assert.equal(ext['.bar'][0].all, false);
+	});
+
+	it.only('should pass official samples tests', () => {
+		const dir = path.resolve(__dirname, './less');
+		const runTest = file => {
+			const source = fs.readFileSync(path.join(dir, file), 'utf8');
+			const expected = fs.readFileSync(path.join(dir, file.replace(/\.\w+$/, '.css')), 'utf8');
+
+			const style = new LESS(source);
+			assert.equal(style.transform().toCSS(true), expected, file);
+		};
+
+		runTest('extend-chaining.less');
+
+		// fs.readdirSync(dir)
+		// 	.filter(file => path.extname(file) === '.less')
+		// 	.forEach(runTest);
+	});
 });
