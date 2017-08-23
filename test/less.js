@@ -47,7 +47,7 @@ describe('LESS Stylesheet', () => {
 		assert.equal(style.transform().toCSS(true), 'foo {\n\tpadding: 20px;\n}\nbar {\n\tpadding: 10px;\n}\n');
 	});
 
-	it.skip('should apply extends', () => {
+	it.only('should apply extends', () => {
 		let style;
 		
 		style = new LESS('foo:extend(.bar) { margin: 5px; } .bar { padding: 10px } ');
