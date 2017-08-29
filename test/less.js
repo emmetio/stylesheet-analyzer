@@ -47,11 +47,23 @@ describe('LESS Stylesheet', () => {
 		assert.equal(style.transform().toCSS(true), 'foo {\n\tpadding: 20px;\n}\nbar {\n\tpadding: 10px;\n}\n');
 	});
 
-	it.only('should apply extends', () => {
+	it('should apply extends', () => {
 		let style;
 		
 		style = new LESS('foo:extend(.bar) { margin: 5px; } .bar { padding: 10px } ');
 		assert.equal(style.transform().toCSS(true), 'foo {\n\tmargin: 5px;\n}\n.bar, foo {\n\tpadding: 10px;\n}\n');
+
+		style = new LESS('.ext3, .ext4 { &:extend(.foo all); &:extend(.bar all); } .foo { a: 1 } .bar { b: 2 }');
+		assert.equal(style.transform().toCSS(true), '.foo, .ext3, .ext4 {\n\ta: 1;\n}\n.bar, .ext3, .ext4 {\n\tb: 2;\n}\n');
+
+		style = new LESS('.a.b { a: 1; } .b.a { b: 2; } .c { &:extend(.a all); c: 3; }');
+		assert.equal(style.transform().toCSS(true), '.a.b, .c.b {\n\ta: 1;\n}\n.b.a, .b.c {\n\tb: 2;\n}\n.c {\n\tc: 3;\n}\n');
+
+		style = new LESS('.ext8 { .ext9 { result: match-nested-bar; } } .buu:extend(.ext8 .ext9 all) {}');
+		assert.equal(style.transform().toCSS(true), '.ext8 .ext9, .buu {\n\tresult: match-nested-bar;\n}\n');
+
+		style = new LESS('.bb .bb { color: black; } .ff:extend(.dd,.bb all) {}');
+		assert.equal(style.transform().toCSS(true), '.bb .bb, .ff .ff {\n\tcolor: black;\n}\n');
 	});
 
 	it.skip('should find extend', () => {
@@ -73,7 +85,7 @@ describe('LESS Stylesheet', () => {
 		assert.equal(ext['.bar'][0].all, false);
 	});
 
-	it('should pass official samples tests', () => {
+	it.only('should pass official samples tests', () => {
 		const dir = path.resolve(__dirname, './less');
 		const runTest = file => {
 			const source = fs.readFileSync(path.join(dir, file), 'utf8');
@@ -83,7 +95,7 @@ describe('LESS Stylesheet', () => {
 			assert.equal(style.transform().toCSS(true), expected, file);
 		};
 
-		runTest('nesting.less');
+		runTest('extend.less');
 
 		// fs.readdirSync(dir)
 		// 	.filter(file => path.extname(file) === '.less')
