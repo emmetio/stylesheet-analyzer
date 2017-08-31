@@ -47,8 +47,14 @@ describe('LESS Stylesheet', () => {
 		assert.equal(style.transform().toCSS(true), 'foo {\n\tpadding: 20px;\n}\nbar {\n\tpadding: 10px;\n}\n');
 	});
 
-	it('should apply extends', () => {
+	it.only('should apply extends', () => {
 		let style;
+		
+		style = new LESS('.foo .bar, .foo .baz { display: none;	} .ext1.ext2 { &:extend(.foo all); } .ext3, .ext4 { &:extend(.foo all); &:extend(.bar all); }');
+		assert.equal(style.transform().toCSS(true), '.foo .bar, .foo .baz, .ext1 .ext2 .bar, .ext1 .ext2 .baz, .ext3 .bar, .ext3 .baz, .foo .ext3, .ext4 .bar, .ext4 .baz, .foo .ext4 {\n\tdisplay: none;\n}\n');
+		
+		style = new LESS('.a { color: black; } .b:extend(.a) {} .c:extend(.b) {}');
+		assert.equal(style.transform().toCSS(true), '.a, .b, .c {\n\tcolor: black;\n}\n');
 		
 		style = new LESS('foo:extend(.bar) { margin: 5px; } .bar { padding: 10px } ');
 		assert.equal(style.transform().toCSS(true), 'foo {\n\tmargin: 5px;\n}\n.bar, foo {\n\tpadding: 10px;\n}\n');
@@ -85,7 +91,7 @@ describe('LESS Stylesheet', () => {
 		assert.equal(ext['.bar'][0].all, false);
 	});
 
-	it.only('should pass official samples tests', () => {
+	it.skip('should pass official samples tests', () => {
 		const dir = path.resolve(__dirname, './less');
 		const runTest = file => {
 			const source = fs.readFileSync(path.join(dir, file), 'utf8');
