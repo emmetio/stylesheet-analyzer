@@ -50,6 +50,9 @@ describe('LESS Stylesheet', () => {
 	it.only('should apply extends', () => {
 		let style;
 
+		style = new LESS('.x:extend(.z) { color: x; } .y:extend(.x) { color: y; } .z:extend(.y) { color: z; } .ma:extend(.x, .y, .z) { color: xx; }');
+		assert.equal(style.transform().toCSS(true), '.x, .y, .ma, .z, .ma, .ma {\n\tcolor: x;\n}\n.y, .z, .ma, .x, .ma, .ma {\n\tcolor: y;\n}\n.z, .x, .ma, .y, .ma, .ma {\n\tcolor: z;\n}\n.ma {\n\tcolor: xx;\n}\n');
+
 		style = new LESS('.x:extend(.z) { color: x; } .y:extend(.x) { color: y; } .z:extend(.y) { color: z; }');
 		assert.equal(style.transform().toCSS(true), '.x, .y, .z {\n\tcolor: x;\n}\n.y, .z, .x {\n\tcolor: y;\n}\n.z, .x, .y {\n\tcolor: z;\n}\n');
 
@@ -78,25 +81,6 @@ describe('LESS Stylesheet', () => {
 		assert.equal(style.transform().toCSS(true), '.bb .bb, .ff .ff {\n\tcolor: black;\n}\n');
 	});
 
-	it.skip('should find extend', () => {
-		let ext = getExtend(parser('foo:extend(.bar) {  }').firstChild);
-
-		assert(ext['.bar']);
-		assert.equal(ext['.bar'].length, 1);
-		assert.equal(ext['.bar'][0].extendWith, 'foo');
-		assert.equal(ext['.bar'][0].all, false);
-
-		ext = getExtend(parser('foo:extend(.bar .baz all) {  }').firstChild);
-		assert.equal(ext['.bar .baz'].length, 1);
-		assert.equal(ext['.bar .baz'][0].extendWith, 'foo');
-		assert.equal(ext['.bar .baz'][0].all, true);
-
-		ext = getExtend(parser('foo { &:extend(.bar); }').firstChild);
-		assert.equal(ext['.bar'].length, 1);
-		assert.equal(ext['.bar'][0].extendWith, 'foo');
-		assert.equal(ext['.bar'][0].all, false);
-	});
-
 	it.skip('should pass official samples tests', () => {
 		const dir = path.resolve(__dirname, './less');
 		const runTest = file => {
@@ -107,7 +91,7 @@ describe('LESS Stylesheet', () => {
 			assert.equal(style.transform().toCSS(true), expected, file);
 		};
 
-		// runTest('extend.less');
+		runTest('extend.less');
 		runTest('extend-chaining.less');
 
 		// fs.readdirSync(dir)
