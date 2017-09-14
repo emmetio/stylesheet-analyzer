@@ -47,8 +47,11 @@ describe('LESS Stylesheet', () => {
 		assert.equal(style.transform().toCSS(true), 'foo {\n\tpadding: 20px;\n}\nbar {\n\tpadding: 10px;\n}\n');
 	});
 
-	it.only('should apply extends', () => {
+	it.skip('should apply extends', () => {
 		let style;
+
+		style = new LESS('.a { color: black; } @media tv { .ma:extend(.a,.md) { color: black; } .md { color: white; } }');
+		assert.equal(style.transform().toCSS(true), '.a {\n\tcolor: black;\n}\n@media tv {\n\t.ma {\n\t\tcolor: black;\n\t}\n\t.md, .ma {\n\t\tcolor: white;\n\t}\n}\n');
 
 		style = new LESS('.x:extend(.z) { color: x; } .y:extend(.x) { color: y; } .z:extend(.y) { color: z; } .ma:extend(.x, .y, .z) { color: xx; }');
 		assert.equal(style.transform().toCSS(true), '.x, .y, .ma, .z, .ma, .ma {\n\tcolor: x;\n}\n.y, .z, .ma, .x, .ma, .ma {\n\tcolor: y;\n}\n.z, .x, .ma, .y, .ma, .ma {\n\tcolor: z;\n}\n.ma {\n\tcolor: xx;\n}\n');
@@ -81,7 +84,7 @@ describe('LESS Stylesheet', () => {
 		assert.equal(style.transform().toCSS(true), '.bb .bb, .ff .ff {\n\tcolor: black;\n}\n');
 	});
 
-	it.skip('should pass official samples tests', () => {
+	it.only('should pass official samples tests', () => {
 		const dir = path.resolve(__dirname, './less');
 		const runTest = file => {
 			const source = fs.readFileSync(path.join(dir, file), 'utf8');
@@ -91,11 +94,11 @@ describe('LESS Stylesheet', () => {
 			assert.equal(style.transform().toCSS(true), expected, file);
 		};
 
-		runTest('extend.less');
-		runTest('extend-chaining.less');
+		// runTest('extend-selector.less');
+		// runTest('extend-chaining.less');
 
-		// fs.readdirSync(dir)
-		// 	.filter(file => path.extname(file) === '.less')
-		// 	.forEach(runTest);
+		fs.readdirSync(dir)
+			.filter(file => path.extname(file) === '.less')
+			.forEach(runTest);
 	});
 });
