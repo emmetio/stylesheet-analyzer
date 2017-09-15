@@ -47,8 +47,11 @@ describe('LESS Stylesheet', () => {
 		assert.equal(style.transform().toCSS(true), 'foo {\n\tpadding: 20px;\n}\nbar {\n\tpadding: 10px;\n}\n');
 	});
 
-	it.skip('should apply extends', () => {
+	it.only('should apply extends', () => {
 		let style;
+
+		style = new LESS('.button { color: black; &:hover { color: white; } } .submit { &:extend(.button); &:hover:extend(.button:hover) {} }');
+		assert.equal(style.transform().toCSS(true), '.button, .submit {\n\tcolor: black;\n}\n.button:hover, .submit:hover {\n\tcolor: white;\n}\n');
 
 		style = new LESS('.a { color: black; } @media tv { .ma:extend(.a,.md) { color: black; } .md { color: white; } }');
 		assert.equal(style.transform().toCSS(true), '.a {\n\tcolor: black;\n}\n@media tv {\n\t.ma {\n\t\tcolor: black;\n\t}\n\t.md, .ma {\n\t\tcolor: white;\n\t}\n}\n');
@@ -84,7 +87,7 @@ describe('LESS Stylesheet', () => {
 		assert.equal(style.transform().toCSS(true), '.bb .bb, .ff .ff {\n\tcolor: black;\n}\n');
 	});
 
-	it.only('should pass official samples tests', () => {
+	it.skip('should pass official samples tests', () => {
 		const dir = path.resolve(__dirname, './less');
 		const runTest = file => {
 			const source = fs.readFileSync(path.join(dir, file), 'utf8');
